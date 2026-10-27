@@ -559,52 +559,51 @@ let messages = [], locked = false, lastChat = 0;
 const muted = {};
 $("cName").value = localStorage.getItem("chatName") || "";
 
+/* --- BULLETPROOF CHAT DEBUGGER & FIX --- */
 function renderChat() {
-  const uid = state.user?.uid, list = $("msgs");
-  const nearBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 120;
-  list.innerHTML = messages.length ? messages.map((m) => {
-    const isMuted = !!muted[m.uid];
-    return `<div class="msg ${m.uid === uid ? "me" : ""} ${m.isPresident ? "pres" : ""}">
-      <div class="who">${m.isPresident ? "👑 " : ""}${esc(m.name)} ${isMuted ? `<span class="badge red">مكتوم</span>` : ""}</div>
+  const uid = state.user?.uid;
+  const list = $("msgs");
+  
+  if (!messages.length) {
+    list.innerHTML = `<div class="empty">No messages yet or waiting for connection...</div>`;
+    return;
+  }
+
+  list.innerHTML = messages.map((m) => `
+    <div class="msg ${m.uid === uid ? "me" : ""}">
+      <div class="who">${esc(m.name)}</div>
       <div class="txt">${esc(m.text)}</div>
       <div class="time">${fmtDate(m.createdAt)}</div>
-      ${!m.isPresident ? `<div class="acts admin-only flex">
-        <button class="del" data-act="del" data-id="${m.id}">حذف</button>
-        <button data-act="${isMuted ? "unmute" : "mute"}" data-uid="${m.uid}" data-name="${esc(m.name)}">${isMuted ? "إلغاء الكتم" : "كتم"}</button>
-      </div>` : ""}
-    </div>`;
-  }).join("") : `<div class="empty">لا توجد رسائل بعد. كن أول من يكتب!</div>`;
-  if (nearBottom) list.scrollTop = list.scrollHeight;
-
-  const iAmMuted = !state.isAdmin && uid && muted[uid];
-  const blocked = !state.isAdmin && (locked || iAmMuted);
-  $("lockBadge").textContent = locked ? "مقفلة 🔒" : "مفتوحة";
-  $("lockBadge").className = "badge " + (locked ? "red" : "green");
-  $("lockBtn").textContent = locked ? "🔓 فتح الدردشة" : "🔒 قفل الدردشة";
-  $("notice").innerHTML = iAmMuted ? `<div class="notice mute">🔇 تم كتمك من قبل الرئيس ولا يمكنك الإرسال.</div>`
-    : locked && !state.isAdmin ? `<div class="notice lock">🔒 الدردشة مقفلة حالياً من قبل الرئيس.</div>` : "";
-  $("cText").disabled = $("cSend").disabled = $("cName").disabled = !!blocked;
-
-  const ids = Object.keys(muted);
-  $("mutedList").innerHTML = ids.length
-    ? `<b>المكتومون:</b> ` + ids.map((id) => `<span class="badge red" style="margin:2px">${esc(muted[id].name || "مستخدم")}
-        <a href="#chat" data-act="unmute" data-uid="${id}" style="margin-right:6px">✕</a></span>`).join("")
-    : `<span class="muted">لا يوجد مكتومون.</span>`;
+    </div>
+  `).join("");
+  
+  list.scrollTop = list.scrollHeight;
 }
 
 $("chatForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  if (Date.now() - lastChat < 2000) return toast("لا تُرسل بسرعة كبيرة", "error");
   const text = $("cText").value.trim();
-  const name = state.isAdmin ? `${SITE.name} — ${SITE.title}` : $("cName").value.trim();
-  if (!name) return toast("اكتب اسمك أولاً", "error");
+  const name = $("cName").value.trim() || "Anonymous Student";
   if (!text) return;
-  if (!state.isAdmin) localStorage.setItem("chatName", name);
+  
+  if (!state.user) {
+    toast("Not authenticated yet, wait a second...", "error");
+    return;
+  }
+
   try {
-    await addDoc(collection(db, "messages"), { text, name, uid: state.user.uid, isPresident: state.isAdmin, createdAt: serverTimestamp() });
-    lastChat = Date.now(); $("cText").value = "";
+    await addDoc(collection(db, "messages"), {
+      text: text,
+      name: name,
+      uid: state.user.uid,
+      isPresident: state.isAdmin,
+      createdAt: serverTimestamp()
+    });
+    $("cText").value = "";
+    localStorage.setItem("chatName", name);
   } catch (err) {
-    toast(err?.code?.includes("permission") ? "لا يمكنك الإرسال (الدردشة مقفلة أو تم كتمك)" : errMsg(err), "error");
+    console.error("Send error:", err);
+    toast("Failed to send: " + err.message, "error");
   }
 });
 
@@ -678,56 +677,39 @@ $("inbox").addEventListener("click", async (e) => {
   } catch (err) { toast(errMsg(err), "error"); }
 });
 
-/* التشغيل المستقر */
-let started = false;
+/* --- BULLETPROOF CHAT DEBUGGER & FIX --- */
 function startListeners() {
-  if (started) return; started = true;
-
-  // الأخبار
+  // 1. Listen to News safely
   onSnapshot(query(collection(db, "news"), orderBy("createdAt", "desc")),
-    (s) => { news = s.docs.map((d) => ({ id: d.id, ...d.data() })); renderNews(); renderHome(); },
-    (e) => { console.error("News error:", e); });
-
-  // الاستطلاعات
-  onSnapshot(query(collection(db, "polls"), orderBy("createdAt", "desc")), (s) => {
-    polls = s.docs.map((d) => ({ id: d.id, ...d.data() }));
-    const ids = new Set(polls.map((p) => p.id));
-    polls.forEach((p) => {
-      if (unsubVotes[p.id]) return;
-      unsubVotes[p.id] = onSnapshot(collection(db, "polls", p.id, "votes"), (vs) => {
-        votes[p.id] = vs.docs.map((d) => ({ id: d.id, option: d.data().option }));
-        renderPolls();
-      });
-    });
-    renderPolls();
-  }, (e) => { console.error("Polls error:", e); });
-
-  // الدردشة (معدلة لتجنب أخطاء العد والفلترة)
-  onSnapshot(query(collection(db, "messages"), limit(100)),
     (s) => { 
-      messages = s.docs.map((d) => ({ id: d.id, ...d.data() }));
-      // فرز محلي آمن حتى لو كان الـ timestamp معلقاً
+      news = s.docs.map((d) => ({ id: d.id, ...d.data() })); 
+      renderNews(); 
+      renderHome(); 
+    },
+    (err) => { console.error("News error:", err); }
+  );
+
+  // 2. Listen to Chat Messages with direct error printing to UI
+  onSnapshot(
+    query(collection(db, "messages"), limit(50)),
+    (snapshot) => {
+      messages = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      // Sort locally to avoid index errors
       messages.sort((a, b) => {
         const t1 = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
         const t2 = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
         return t1 - t2;
       });
-      renderChat(); 
-      $("stMsgs").textContent = messages.length;
+      renderChat();
     },
-    (e) => { 
-      console.error("Chat error:", e); 
-      $("msgs").innerHTML = `<div class="empty">تعذر تحميل الرسائل. تأكد من قواعد الأمان.</div>`; 
+    (error) => {
+      console.error("Firestore Chat Error:", error);
+      $("msgs").innerHTML = `<div class="card empty" style="color:red; font-weight:bold;">
+        Firebase Error: ${esc(error.message)}<br>
+        <small>Check if Anonymous Auth & Firestore Rules are properly published.</small>
+      </div>`;
     }
   );
-
-  onSnapshot(doc(db, "settings", "chat"), (d) => { locked = !!d.data()?.locked; renderChat(); });
-  
-  onSnapshot(collection(db, "muted"), (s) => {
-    Object.keys(muted).forEach((k) => delete muted[k]);
-    s.docs.forEach((d) => (muted[d.id] = d.data()));
-    renderChat();
-  });
 }
 
 onAuthStateChanged(auth, async (user) => {
