@@ -678,15 +678,17 @@ $("inbox").addEventListener("click", async (e) => {
   } catch (err) { toast(errMsg(err), "error"); }
 });
 
-/* التشغيل */
+/* التشغيل المستقر */
 let started = false;
 function startListeners() {
   if (started) return; started = true;
 
+  // الأخبار
   onSnapshot(query(collection(db, "news"), orderBy("createdAt", "desc")),
     (s) => { news = s.docs.map((d) => ({ id: d.id, ...d.data() })); renderNews(); renderHome(); },
-    (e) => { console.error(e); $("newsList").innerHTML = `<div class="card empty">تعذر تحميل الأخبار.</div>`; $("latest").innerHTML = ""; });
+    (e) => { console.error("News error:", e); });
 
+  // الاستطلاعات
   onSnapshot(query(collection(db, "polls"), orderBy("createdAt", "desc")), (s) => {
     polls = s.docs.map((d) => ({ id: d.id, ...d.data() }));
     const ids = new Set(polls.map((p) => p.id));
@@ -697,14 +699,28 @@ function startListeners() {
         renderPolls();
       });
     });
-    Object.keys(unsubVotes).forEach((id) => { if (!ids.has(id)) { unsubVotes[id](); delete unsubVotes[id]; delete votes[id]; } });
     renderPolls();
-  }, (e) => { console.error(e); $("pollList").innerHTML = `<div class="card empty">تعذر تحميل الاستطلاعات.</div>`; });
+  }, (e) => { console.error("Polls error:", e); });
 
-  onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(200)),
-    (s) => { messages = s.docs.map((d) => ({ id: d.id, ...d.data() })).reverse(); renderChat(); $("stMsgs").textContent = messages.length; },
-    (e) => { console.error(e); $("msgs").innerHTML = `<div class="empty">تعذر تحميل الرسائل.</div>`; });
-  
+  // الدردشة (معدلة لتجنب أخطاء العد والفلترة)
+  onSnapshot(query(collection(db, "messages"), limit(100)),
+    (s) => { 
+      messages = s.docs.map((d) => ({ id: d.id, ...d.data() }));
+      // فرز محلي آمن حتى لو كان الـ timestamp معلقاً
+      messages.sort((a, b) => {
+        const t1 = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+        const t2 = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+        return t1 - t2;
+      });
+      renderChat(); 
+      $("stMsgs").textContent = messages.length;
+    },
+    (e) => { 
+      console.error("Chat error:", e); 
+      $("msgs").innerHTML = `<div class="empty">تعذر تحميل الرسائل. تأكد من قواعد الأمان.</div>`; 
+    }
+  );
+
   onSnapshot(doc(db, "settings", "chat"), (d) => { locked = !!d.data()?.locked; renderChat(); });
   
   onSnapshot(collection(db, "muted"), (s) => {
