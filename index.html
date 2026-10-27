@@ -328,10 +328,8 @@ dialog h3{color:var(--navy);margin-bottom:4px}
 
 <script type="module">
 /* =====================================================================
-   ⚙️ الإعدادات — عدّل هذا القسم فقط (انظر دليل README.md)
+   ⚙️ الإعدادات — عدّل هذا القسم فقط
    ===================================================================== */
-
-// 1) الصق هنا إعدادات Firebase الخاصة بمشروعك
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyDiVAXnuxGh7wRPnBrYfmCILjFvoxqSynw",
   authDomain: "salim-347a9.firebaseapp.com",
@@ -341,18 +339,16 @@ const FIREBASE_CONFIG = {
   appId: "1:579918390637:web:7a243b3e5613777fe02664",
 };
 
-// 2) بريد حساب الرئيس (نفس البريد في Firebase Authentication وفي قواعد Firestore)
 const ADMIN_EMAIL = "mosalim@email.com";
 
-// 3) معلومات الرئيس
 const SITE = {
   name: "محمد سالم",
   title: "رئيس المرحلة الرابعة",
   tagline: "صوتكم أمانة... وخدمتكم مسؤولية. موقعنا الرسمي للأخبار والتصويت والتواصل المباشر.",
-  photoUrl: "",     // رابط صورة (اختياري) مثل: "https://.../photo.jpg"
-  telegram: "",     // مثال: "https://t.me/username"
-  whatsapp: "",     // مثال: "https://wa.me/9647XXXXXXXXX"
-  instagram: "",    // مثال: "https://instagram.com/username"
+  photoUrl: "",
+  telegram: "",
+  whatsapp: "",
+  instagram: "",
 };
 /* ===================================================================== */
 
@@ -362,7 +358,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import {
   getFirestore, collection, query, orderBy, limit, onSnapshot, addDoc, deleteDoc, updateDoc,
-  setDoc, getDocs, getCountFromServer, writeBatch, doc, serverTimestamp,
+  setDoc, getDocs, writeBatch, doc, serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const app = initializeApp(FIREBASE_CONFIG);
@@ -371,7 +367,6 @@ const db = getFirestore(app);
 const $ = (id) => document.getElementById(id);
 const state = { user: null, isAdmin: false };
 
-/* ---------------- أدوات مساعدة ---------------- */
 const esc = (s = "") => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 function fmtDate(ts) {
   const d = ts?.toDate ? ts.toDate() : null;
@@ -387,13 +382,12 @@ function toast(msg, type = "") {
 }
 function errMsg(e) {
   const c = e?.code || "";
-  if (c.includes("permission-denied")) return "ليست لديك صلاحية لهذا الإجراء.";
+  if (c.includes("permission-denied")) return "ليست لديك صلاحية لهذا الإجراء. تأكد من قواعد Firestore.";
   if (c.includes("unavailable") || c.includes("network")) return "تعذر الاتصال بالإنترنت.";
-  return "حدث خطأ غير متوقع، حاول مرة أخرى.";
+  return "حدث خطأ: " + (e.message || "حاول مرة أخرى.");
 }
 const initials = SITE.name.split(" ").map((w) => w[0]).join("");
 
-/* ---------------- الترويسة والبيانات الثابتة ---------------- */
 $("brandLogo").textContent = initials.split("").join(" ");
 $("brandName").textContent = SITE.name;
 $("brandTitle").textContent = SITE.title;
@@ -409,7 +403,6 @@ const links = [["telegram", "✈️ تيليجرام"], ["whatsapp", "🟢 وا�
   .filter(([k]) => SITE[k]).map(([k, t]) => `<a href="${esc(SITE[k])}" target="_blank" rel="noopener">${t}</a>`).join("");
 if (links) $("contact").innerHTML = `<h2 class="section-title">تواصل معي</h2>${links}`;
 
-/* ---------------- التنقل بين الصفحات ---------------- */
 const PAGES = ["home", "news", "polls", "chat", "feedback"];
 function route() {
   const h = location.hash.slice(1);
@@ -424,7 +417,6 @@ window.addEventListener("hashchange", route);
 route();
 $("menuBtn").onclick = () => $("navLinks").classList.toggle("open");
 
-/* ---------------- تسجيل دخول الرئيس ---------------- */
 const dlg = $("loginDlg");
 $("lgCancel").onclick = () => dlg.close();
 $("authBtn").onclick = async () => {
@@ -441,9 +433,7 @@ $("loginForm").addEventListener("submit", async (e) => {
   btn.disabled = false;
 });
 
-/* =====================================================================
-   الأخبار
-   ===================================================================== */
+/* الأخبار */
 let news = [], newsFilter = "الكل";
 const CATS = ["الكل", "خبر", "إعلان", "مهم", "موعد"];
 $("chips").innerHTML = CATS.map((c) => `<button class="chip ${c === newsFilter ? "active" : ""}" data-c="${c}">${c}</button>`).join("");
@@ -505,9 +495,7 @@ $("newsForm").addEventListener("submit", async (e) => {
   } catch (err) { toast(errMsg(err), "error"); }
 });
 
-/* =====================================================================
-   التصويت
-   ===================================================================== */
+/* التصويت */
 let polls = [];
 const votes = {}, unsubVotes = {};
 
@@ -566,9 +554,7 @@ $("pollForm").addEventListener("submit", async (e) => {
   } catch (err) { toast(errMsg(err), "error"); }
 });
 
-/* =====================================================================
-   الدردشة
-   ===================================================================== */
+/* الدردشة */
 let messages = [], locked = false, lastChat = 0;
 const muted = {};
 $("cName").value = localStorage.getItem("chatName") || "";
@@ -618,7 +604,6 @@ $("chatForm").addEventListener("submit", async (e) => {
     await addDoc(collection(db, "messages"), { text, name, uid: state.user.uid, isPresident: state.isAdmin, createdAt: serverTimestamp() });
     lastChat = Date.now(); $("cText").value = "";
   } catch (err) {
-    console.error("Chat Error:", err);
     toast(err?.code?.includes("permission") ? "لا يمكنك الإرسال (الدردشة مقفلة أو تم كتمك)" : errMsg(err), "error");
   }
 });
@@ -651,9 +636,7 @@ $("clearBtn").onclick = async () => {
   } catch (err) { toast(errMsg(err), "error"); }
 };
 
-/* =====================================================================
-   الملاحظات
-   ===================================================================== */
+/* الملاحظات */
 let lastFb = 0, unsubInbox = null;
 $("fbForm").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -695,9 +678,7 @@ $("inbox").addEventListener("click", async (e) => {
   } catch (err) { toast(errMsg(err), "error"); }
 });
 
-/* =====================================================================
-   المصادقة وتشغيل المستمعات
-   ===================================================================== */
+/* التشغيل */
 let started = false;
 function startListeners() {
   if (started) return; started = true;
@@ -721,30 +702,22 @@ function startListeners() {
   }, (e) => { console.error(e); $("pollList").innerHTML = `<div class="card empty">تعذر تحميل الاستطلاعات.</div>`; });
 
   onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(200)),
-    (s) => { messages = s.docs.map((d) => ({ id: d.id, ...d.data() })).reverse(); renderChat(); },
-    (e) => { 
-      console.warn("Messages query with orderBy failed, falling back to simple collection snapshot", e); 
-      onSnapshot(collection(db, "messages"), (snap) => {
-        messages = snap.docs
-          .map((d) => ({ id: d.id, ...d.data() }))
-          .sort((a, b) => (a.createdAt?.toMillis() || 0) - (b.createdAt?.toMillis() || 0));
-        renderChat();
-      });
-    });
-    
+    (s) => { messages = s.docs.map((d) => ({ id: d.id, ...d.data() })).reverse(); renderChat(); $("stMsgs").textContent = messages.length; },
+    (e) => { console.error(e); $("msgs").innerHTML = `<div class="empty">تعذر تحميل الرسائل.</div>`; });
+  
   onSnapshot(doc(db, "settings", "chat"), (d) => { locked = !!d.data()?.locked; renderChat(); });
+  
   onSnapshot(collection(db, "muted"), (s) => {
     Object.keys(muted).forEach((k) => delete muted[k]);
     s.docs.forEach((d) => (muted[d.id] = d.data()));
     renderChat();
   });
-  getCountFromServer(collection(db, "messages")).then((c) => ($("stMsgs").textContent = c.data().count)).catch(() => ($("stMsgs").textContent = "0"));
 }
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     try { await signInAnonymously(auth); }
-    catch (e) { console.error(e); toast("تعذر الاتصال بـ Firebase. تأكد من الإعدادات وتفعيل الدخول المجهول.", "error"); }
+    catch (e) { console.error(e); toast("تعذر الاتصال بـ Firebase. تأكد من تفعيل Anonymous Auth في لوحة التحكم.", "error"); }
     return;
   }
   state.user = user;
