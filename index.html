@@ -618,6 +618,7 @@ $("chatForm").addEventListener("submit", async (e) => {
     await addDoc(collection(db, "messages"), { text, name, uid: state.user.uid, isPresident: state.isAdmin, createdAt: serverTimestamp() });
     lastChat = Date.now(); $("cText").value = "";
   } catch (err) {
+    console.error("Chat Error:", err);
     toast(err?.code?.includes("permission") ? "لا يمكنك الإرسال (الدردشة مقفلة أو تم كتمك)" : errMsg(err), "error");
   }
 });
@@ -721,7 +722,16 @@ function startListeners() {
 
   onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(200)),
     (s) => { messages = s.docs.map((d) => ({ id: d.id, ...d.data() })).reverse(); renderChat(); },
-    (e) => { console.error(e); $("msgs").innerHTML = `<div class="empty">تعذر تحميل الرسائل.</div>`; });
+    (e) => { 
+      console.warn("Messages query with orderBy failed, falling back to simple collection snapshot", e); 
+      onSnapshot(collection(db, "messages"), (snap) => {
+        messages = snap.docs
+          .map((d) => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => (a.createdAt?.toMillis() || 0) - (b.createdAt?.toMillis() || 0));
+        renderChat();
+      });
+    });
+    
   onSnapshot(doc(db, "settings", "chat"), (d) => { locked = !!d.data()?.locked; renderChat(); });
   onSnapshot(collection(db, "muted"), (s) => {
     Object.keys(muted).forEach((k) => delete muted[k]);
