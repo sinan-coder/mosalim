@@ -1,0 +1,805 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>محمد سالم | رئيس المرحلة الرابعة</title>
+<meta name="description" content="الموقع الرسمي لرئيس المرحلة الرابعة محمد سالم: أخبار، تصويت، دردشة وملاحظات.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0b1f3a; --navy-2:#13315c; --gold:#c9a227; --gold-2:#e6c65a;
+  --bg:#f4f6fb; --card:#ffffff; --text:#1c2733; --muted:#6b7a90;
+  --line:#e3e8f0; --ok:#1f9d63; --danger:#d64545;
+  --radius:16px; --shadow:0 6px 24px rgba(11,31,58,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Cairo','Tajawal',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.8;min-height:100vh;display:flex;flex-direction:column}
+main{flex:1;width:100%;max-width:1100px;margin:0 auto;padding:28px 18px 60px}
+a{color:inherit;text-decoration:none}
+button,input,textarea,select{font-family:inherit;font-size:1rem}
+.page{display:none}.page.active{display:block;animation:in .3s}
+
+/* عناصر الرئيس فقط */
+.admin-only{display:none !important}
+.is-admin .admin-only{display:block !important}
+.is-admin .admin-only.row,.is-admin .admin-only.flex{display:flex !important}
+.is-admin .user-only{display:none !important}
+
+/* الترويسة */
+.site-header{background:linear-gradient(120deg,var(--navy),var(--navy-2));color:#fff;position:sticky;top:0;z-index:50;box-shadow:0 2px 14px rgba(0,0,0,.25)}
+.nav{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:12px 18px;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800}
+.brand .logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--gold-2));color:var(--navy);display:grid;place-items:center;font-weight:900}
+.brand small{display:block;font-weight:500;font-size:.72rem;color:#b9c6dc;line-height:1.2}
+.nav-links{display:flex;gap:4px;align-items:center}
+.nav-links a{padding:8px 14px;border-radius:10px;font-weight:600;color:#dbe5f6;transition:.2s}
+.nav-links a:hover{background:rgba(255,255,255,.1)}
+.nav-links a.active{background:var(--gold);color:var(--navy)}
+.menu-btn{display:none;background:none;border:0;color:#fff;font-size:1.7rem;cursor:pointer}
+.auth-btn{background:transparent;border:1.5px solid var(--gold);color:var(--gold-2);padding:7px 14px;border-radius:10px;cursor:pointer;font-weight:700;transition:.2s}
+.auth-btn:hover{background:var(--gold);color:var(--navy)}
+@media(max-width:860px){
+  .menu-btn{display:block}
+  .nav-links{display:none;position:absolute;top:100%;right:0;left:0;background:var(--navy);flex-direction:column;align-items:stretch;padding:10px 18px 16px}
+  .nav-links.open{display:flex}
+}
+
+/* عام */
+.page-title{margin-bottom:22px}
+.page-title h1{font-size:1.9rem;color:var(--navy);font-weight:800}
+.page-title p{color:var(--muted)}
+.page-title h1::after{content:"";display:block;width:64px;height:4px;border-radius:4px;background:var(--gold);margin-top:8px}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;border:1px solid var(--line)}
+.grid{display:grid;gap:18px}
+.grid.c3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--navy);color:#fff;border:0;padding:11px 22px;border-radius:12px;cursor:pointer;font-weight:700;transition:.2s}
+.btn:hover{background:var(--navy-2);transform:translateY(-1px)}
+.btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold-2));color:var(--navy)}
+.btn.ghost{background:transparent;color:var(--navy);border:1.5px solid var(--line)}
+.btn.danger{background:var(--danger)}
+.btn.sm{padding:6px 12px;font-size:.85rem;border-radius:9px}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+label{display:block;font-weight:700;margin:12px 0 6px;color:var(--navy)}
+input[type=text],input[type=email],input[type=password],textarea,select{width:100%;padding:11px 14px;border:1.5px solid var(--line);border-radius:12px;background:#fbfcfe;outline:none;transition:.2s}
+input:focus,textarea:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,162,39,.18)}
+textarea{min-height:120px;resize:vertical}
+.badge{display:inline-block;padding:2px 12px;border-radius:99px;font-size:.78rem;font-weight:700;background:#e8eefb;color:var(--navy-2)}
+.badge.gold{background:#fbf1cf;color:#8a6d00}
+.badge.red{background:#fde5e5;color:var(--danger)}
+.badge.green{background:#dff5ea;color:var(--ok)}
+.muted{color:var(--muted)}
+.empty{text-align:center;padding:40px 10px;color:var(--muted)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row.between{justify-content:space-between}
+.admin-panel{border:2px dashed var(--gold);background:#fffaf0;margin-bottom:22px}
+.admin-panel h3{color:#8a6d00;margin-bottom:6px}
+.section-title{margin:34px 0 14px;font-size:1.4rem;color:var(--navy);font-weight:800}
+
+/* الرئيسية */
+.hero{background:linear-gradient(135deg,var(--navy),var(--navy-2) 70%);color:#fff;border-radius:24px;padding:44px 32px;display:flex;gap:32px;align-items:center;flex-wrap:wrap;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.hero::before{content:"";position:absolute;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(201,162,39,.3),transparent 65%);left:-100px;top:-120px}
+.avatar{width:170px;height:170px;border-radius:50%;border:5px solid var(--gold);background:linear-gradient(135deg,#1c3d70,#0b1f3a);display:grid;place-items:center;font-size:3.4rem;font-weight:900;color:var(--gold-2);overflow:hidden;flex-shrink:0;position:relative}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.hero-text{position:relative;flex:1;min-width:260px}
+.hero-text .tag{color:var(--gold-2);font-weight:700}
+.hero-text h1{font-size:2.5rem;font-weight:900;line-height:1.3;margin:4px 0 10px}
+.hero-text p{color:#cfdbef;max-width:560px}
+.hero .row{margin-top:18px}
+.stats{margin:22px 0}
+.stat{text-align:center}
+.stat b{display:block;font-size:2.2rem;color:var(--navy);font-weight:900}
+.stat span{color:var(--muted);font-weight:600}
+.feature{text-align:center;transition:.25s;display:block}
+.feature:hover{transform:translateY(-4px)}
+.feature .ico{font-size:2.2rem;margin-bottom:6px}
+.feature h3{color:var(--navy)}
+.contact a{display:inline-flex;gap:6px;background:#eef3fb;padding:8px 16px;border-radius:99px;font-weight:700;margin:4px}
+
+/* الأخبار */
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.chip{border:1.5px solid var(--line);background:#fff;padding:6px 16px;border-radius:99px;cursor:pointer;font-weight:700;color:var(--muted)}
+.chip.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.news-item{margin-bottom:16px;border-right:5px solid var(--navy)}
+.news-item.pinned{border-right-color:var(--gold);background:#fffdf5}
+.news-item.cat-important{border-right-color:var(--danger)}
+.news-item h3{font-size:1.2rem;color:var(--navy);margin:6px 0}
+.news-item .body{white-space:pre-wrap;color:#33404f}
+.news-meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:.85rem;color:var(--muted)}
+
+/* التصويت */
+.poll{margin-bottom:18px}
+.poll h3{color:var(--navy);margin-bottom:12px}
+.opt{position:relative;border:1.5px solid var(--line);border-radius:12px;margin:8px 0;overflow:hidden;background:#fff}
+.opt .fill{position:absolute;inset:0 0 0 auto;background:#e8eefb;width:0;transition:width .6s}
+.opt.mine{border-color:var(--gold)}
+.opt.mine .fill{background:#fbf1cf}
+.opt .in{position:relative;display:flex;justify-content:space-between;align-items:center;padding:11px 16px;font-weight:700;gap:10px}
+.opt button.in{width:100%;background:none;border:0;cursor:pointer;text-align:right;color:var(--text)}
+.opt button.in:hover{background:#f5f8fe}
+
+/* الدردشة */
+.chat-wrap{display:grid;grid-template-columns:1fr;gap:16px}
+.chat-box{display:flex;flex-direction:column;height:68vh;min-height:430px;padding:0;overflow:hidden}
+.chat-head{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;background:#fbfcfe}
+.chat-list{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:#f7f9fd}
+.msg{max-width:78%;background:#fff;border:1px solid var(--line);border-radius:16px 16px 16px 4px;padding:8px 14px;align-self:flex-start;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.msg.me{align-self:flex-end;background:#e9f0fd;border-radius:16px 16px 4px 16px}
+.msg.pres{background:linear-gradient(135deg,#fff8e1,#fdeeb4);border-color:var(--gold)}
+.msg .who{font-weight:800;font-size:.88rem;color:var(--navy-2)}
+.msg .txt{white-space:pre-wrap;word-break:break-word}
+.msg .time{font-size:.72rem;color:var(--muted)}
+.msg .acts{display:flex;gap:6px;margin-top:4px}
+.msg .acts button{border:0;background:#eef1f7;border-radius:8px;padding:2px 10px;cursor:pointer;font-size:.78rem;font-weight:700}
+.msg .acts button.del{color:var(--danger)}
+.chat-form{border-top:1px solid var(--line);padding:12px;display:flex;gap:10px;background:#fff}
+.chat-form input{flex:1}
+.notice{padding:10px 16px;text-align:center;font-weight:700}
+.notice.lock{background:#fde5e5;color:var(--danger)}
+.notice.mute{background:#fff1d6;color:#9a6200}
+
+/* الملاحظات */
+.fb-item{margin-bottom:12px}
+.fb-item.unread{border-right:5px solid var(--gold)}
+.reply-box{margin-top:10px;background:#fffaf0;border:1.5px solid #f0e2a8;border-radius:12px;padding:12px 14px}
+.reply-box b{color:#8a6d00}
+.reply-box .time{font-size:.78rem;color:var(--muted)}
+.reply-form textarea{min-height:70px;margin:8px 0}
+.my-msg{margin-bottom:12px}
+
+/* نافذة الدخول + إشعارات */
+dialog{border:0;border-radius:20px;padding:26px;width:min(420px,92vw);box-shadow:0 20px 60px rgba(0,0,0,.3);margin:auto}
+dialog::backdrop{background:rgba(11,31,58,.6);backdrop-filter:blur(3px)}
+dialog h3{color:var(--navy);margin-bottom:4px}
+.toast-wrap{position:fixed;bottom:20px;left:20px;z-index:99;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--navy);color:#fff;padding:12px 20px;border-radius:12px;box-shadow:var(--shadow);font-weight:700;animation:in .3s}
+.toast.error{background:var(--danger)}.toast.ok{background:var(--ok)}
+@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.site-footer{background:var(--navy);color:#b9c6dc;text-align:center;padding:22px 14px;font-size:.9rem}
+.site-footer b{color:var(--gold-2)}
+@media(max-width:600px){.hero{padding:30px 20px;text-align:center;justify-content:center}.hero-text h1{font-size:2rem}.msg{max-width:92%}}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="nav">
+    <a class="brand" href="#home">
+      <span class="logo" id="brandLogo"></span>
+      <span><span id="brandName"></span><small id="brandTitle"></small></span>
+    </a>
+    <nav class="nav-links" id="navLinks">
+      <a href="#home" data-p="home">الرئيسية</a>
+      <a href="#news" data-p="news">الأخبار والإعلانات</a>
+      <a href="#polls" data-p="polls">التصويت</a>
+      <a href="#chat" data-p="chat">الدردشة</a>
+      <a href="#feedback" data-p="feedback">الملاحظات</a>
+    </nav>
+    <div class="row">
+      <button class="auth-btn" id="authBtn">🔐 دخول الرئيس</button>
+      <button class="menu-btn" id="menuBtn" aria-label="القائمة">☰</button>
+    </div>
+  </div>
+</header>
+
+<dialog id="loginDlg">
+  <form id="loginForm" method="dialog">
+    <h3>دخول رئيس المرحلة</h3>
+    <p class="muted">هذا الدخول مخصص للرئيس فقط لإدارة الموقع.</p>
+    <label for="lgEmail">البريد الإلكتروني</label>
+    <input type="email" id="lgEmail" dir="ltr" required autocomplete="username">
+    <label for="lgPass">كلمة المرور</label>
+    <input type="password" id="lgPass" dir="ltr" required autocomplete="current-password">
+    <div class="row" style="margin-top:18px">
+      <button class="btn gold" type="submit" id="lgSubmit">دخول</button>
+      <button class="btn ghost" type="button" id="lgCancel">إلغاء</button>
+    </div>
+  </form>
+</dialog>
+
+<main>
+
+  <!-- ===================== الرئيسية ===================== -->
+  <section class="page" id="page-home">
+    <div class="hero">
+      <div class="avatar" id="avatar"></div>
+      <div class="hero-text">
+        <div class="tag" id="heroTitle"></div>
+        <h1 id="heroName"></h1>
+        <p id="heroTag"></p>
+        <div class="row">
+          <a class="btn gold" href="#news">📢 آخر الأخبار</a>
+          <a class="btn" style="background:rgba(255,255,255,.14)" href="#feedback">✉️ أرسل ملاحظة</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid c3 stats">
+      <div class="card stat"><b id="stNews">–</b><span>خبر وإعلان</span></div>
+      <div class="card stat"><b id="stPolls">–</b><span>استطلاع رأي</span></div>
+      <div class="card stat"><b id="stMsgs">–</b><span>رسالة في الدردشة</span></div>
+    </div>
+
+    <h2 class="section-title">خدمات الموقع</h2>
+    <div class="grid c3">
+      <a class="card feature" href="#news"><div class="ico">📢</div><h3>الأخبار والإعلانات</h3><p class="muted">تابع كل جديد من المواعيد والقرارات والتعليمات المهمة.</p></a>
+      <a class="card feature" href="#polls"><div class="ico">🗳️</div><h3>التصويت</h3><p class="muted">شارك برأيك في القرارات التي تخص المرحلة بصوت واحد لكل طالب.</p></a>
+      <a class="card feature" href="#chat"><div class="ico">💬</div><h3>الدردشة</h3><p class="muted">تواصل مباشر بين الطلبة والرئيس بإشراف منظّم.</p></a>
+      <a class="card feature" href="#feedback"><div class="ico">✉️</div><h3>الملاحظات والاقتراحات</h3><p class="muted">أرسل اقتراحك أو شكواك باسمك أو بشكل مجهول.</p></a>
+    </div>
+
+    <h2 class="section-title">آخر الأخبار</h2>
+    <div id="latest"><div class="empty">جارِ التحميل…</div></div>
+    <div class="contact" id="contact" style="margin-top:26px"></div>
+  </section>
+
+  <!-- ===================== الأخبار ===================== -->
+  <section class="page" id="page-news">
+    <div class="page-title"><h1>الأخبار والإعلانات</h1><p>كل ما يخص المرحلة الرابعة في مكان واحد.</p></div>
+
+    <div class="card admin-panel admin-only">
+      <h3>👑 نشر خبر أو إعلان جديد</h3>
+      <form id="newsForm">
+        <label for="nTitle">العنوان</label>
+        <input type="text" id="nTitle" maxlength="120" required>
+        <label for="nBody">النص</label>
+        <textarea id="nBody" maxlength="3000" required></textarea>
+        <div class="row" style="margin-top:10px">
+          <div style="flex:1;min-width:160px"><label for="nCat">التصنيف</label>
+            <select id="nCat"><option>خبر</option><option>إعلان</option><option>مهم</option><option>موعد</option></select></div>
+          <label style="display:flex;gap:8px;align-items:center;margin-top:30px"><input type="checkbox" id="nPin"> تثبيت في الأعلى</label>
+        </div>
+        <button class="btn gold" style="margin-top:14px" type="submit">نشر</button>
+      </form>
+    </div>
+
+    <div class="chips" id="chips"></div>
+    <div id="newsList"><div class="empty">جارِ التحميل…</div></div>
+  </section>
+
+  <!-- ===================== التصويت ===================== -->
+  <section class="page" id="page-polls">
+    <div class="page-title"><h1>التصويت واستطلاعات الرأي</h1><p>لكل طالب صوت واحد في كل استطلاع، والنتائج تظهر مباشرة.</p></div>
+
+    <div class="card admin-panel admin-only">
+      <h3>👑 إنشاء استطلاع جديد</h3>
+      <form id="pollForm">
+        <label for="pQ">السؤال</label>
+        <input type="text" id="pQ" maxlength="200" required>
+        <label for="pOpts">الخيارات (كل خيار في سطر، من 2 إلى 6)</label>
+        <textarea id="pOpts" placeholder="نعم&#10;لا&#10;لا أمانع" required></textarea>
+        <button class="btn gold" style="margin-top:14px" type="submit">نشر الاستطلاع</button>
+      </form>
+    </div>
+
+    <div id="pollList"><div class="empty">جارِ التحميل…</div></div>
+  </section>
+
+  <!-- ===================== الدردشة ===================== -->
+  <section class="page" id="page-chat">
+    <div class="page-title"><h1>الدردشة العامة</h1><p>تواصلوا باحترام. الرئيس يملك صلاحية قفل الدردشة وكتم المخالفين وحذف الرسائل.</p></div>
+    <div class="chat-wrap">
+      <div class="card admin-panel admin-only">
+        <h3>👑 أدوات الرئيس</h3>
+        <div class="row">
+          <button class="btn" id="lockBtn">🔒 قفل الدردشة</button>
+          <button class="btn danger" id="clearBtn">🗑️ مسح كل الرسائل</button>
+        </div>
+        <div id="mutedList" style="margin-top:12px"></div>
+      </div>
+
+      <div class="card chat-box">
+        <div class="chat-head"><b>💬 غرفة المرحلة الرابعة</b><span class="badge" id="lockBadge">مفتوحة</span></div>
+        <div class="chat-list" id="msgs"><div class="empty">جارِ التحميل…</div></div>
+        <div id="notice"></div>
+        <form class="chat-form" id="chatForm">
+          <input type="text" id="cName" placeholder="اسمك" maxlength="30" style="max-width:150px" class="user-only">
+          <input type="text" id="cText" placeholder="اكتب رسالتك…" maxlength="500" autocomplete="off" required>
+          <button class="btn gold" type="submit" id="cSend">إرسال</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== الملاحظات ===================== -->
+  <section class="page" id="page-feedback">
+    <div class="page-title"><h1>الملاحظات والاقتراحات</h1><p>رأيك يهمنا. رسالتك تصل إلى الرئيس مباشرة ولا يراها غيره.</p></div>
+
+    <div class="card user-only" style="max-width:700px">
+      <form id="fbForm">
+        <label for="fName">الاسم (اختياري — اتركه فارغاً لإرسالها مجهولة)</label>
+        <input type="text" id="fName" maxlength="40">
+        <label for="fType">نوع الرسالة</label>
+        <select id="fType"><option>اقتراح</option><option>شكوى</option><option>استفسار</option><option>شكر</option></select>
+        <label for="fMsg">رسالتك</label>
+        <textarea id="fMsg" minlength="5" maxlength="1000" required></textarea>
+        <button class="btn gold" style="margin-top:14px" type="submit" id="fSend">إرسال</button>
+      </form>
+    </div>
+
+    <div class="user-only" style="max-width:700px;margin-top:26px">
+      <h2 class="section-title" style="margin-top:0">📬 رسائلي وردود الرئيس</h2>
+      <div id="myMsgs"><div class="card empty">لم ترسل أي رسالة من هذا الجهاز بعد.</div></div>
+    </div>
+
+    <div class="admin-only">
+      <div class="card admin-panel"><h3>👑 صندوق الملاحظات الوارد</h3><p class="muted">تظهر هنا رسائل الطلبة وهي خاصة بك وحدك.</p></div>
+      <div id="inbox"><div class="empty">جارِ التحميل…</div></div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p>© <span id="year"></span> الموقع الرسمي لـ <b id="footName"></b> — <span id="footTitle"></span></p>
+</footer>
+
+<script type="module">
+/* =====================================================================
+   ⚙️ الإعدادات — عدّل هذا القسم فقط (انظر دليل README.md)
+   ===================================================================== */
+
+// 1) الصق هنا إعدادات Firebase الخاصة بمشروعك
+const FIREBASE_CONFIG = {
+  apiKey: "PASTE_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "000000000000",
+  appId: "1:000000000000:web:xxxxxxxxxxxxxxxx",
+};
+
+// 2) بريد حساب الرئيس (نفس البريد في Firebase Authentication وفي قواعد Firestore)
+const ADMIN_EMAIL = "president@example.com";
+
+// 3) معلومات الرئيس
+const SITE = {
+  name: "محمد سالم",
+  title: "رئيس المرحلة الرابعة",
+  tagline: "صوتكم أمانة... وخدمتكم مسؤولية. موقعنا الرسمي للأخبار والتصويت والتواصل المباشر.",
+  photoUrl: "",     // رابط صورة (اختياري) مثل: "https://.../photo.jpg"
+  telegram: "",     // مثال: "https://t.me/username"
+  whatsapp: "",     // مثال: "https://wa.me/9647XXXXXXXXX"
+  instagram: "",    // مثال: "https://instagram.com/username"
+};
+/* ===================================================================== */
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import {
+  getAuth, onAuthStateChanged, signInAnonymously, signInWithEmailAndPassword, signOut,
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import {
+  getFirestore, collection, query, where, orderBy, limit, onSnapshot, addDoc, deleteDoc, updateDoc,
+  setDoc, getDocs, getCountFromServer, deleteField, writeBatch, doc, serverTimestamp,
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+const app = initializeApp(FIREBASE_CONFIG);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const $ = (id) => document.getElementById(id);
+const state = { user: null, isAdmin: false };
+
+/* ---------------- أدوات مساعدة ---------------- */
+const esc = (s = "") => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+function fmtDate(ts) {
+  const d = ts?.toDate ? ts.toDate() : null;
+  if (!d) return "الآن";
+  return d.toLocaleString("ar-IQ", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+function toast(msg, type = "") {
+  let w = document.querySelector(".toast-wrap");
+  if (!w) { w = document.createElement("div"); w.className = "toast-wrap"; document.body.appendChild(w); }
+  const t = document.createElement("div");
+  t.className = "toast " + type; t.textContent = msg; w.appendChild(t);
+  setTimeout(() => t.remove(), 3800);
+}
+function errMsg(e) {
+  const c = e?.code || "";
+  if (c.includes("permission-denied")) return "ليست لديك صلاحية لهذا الإجراء.";
+  if (c.includes("unavailable") || c.includes("network")) return "تعذر الاتصال بالإنترنت.";
+  return "حدث خطأ غير متوقع، حاول مرة أخرى.";
+}
+const initials = SITE.name.split(" ").map((w) => w[0]).join("");
+
+/* ---------------- الترويسة والبيانات الثابتة ---------------- */
+$("brandLogo").textContent = initials.split("").join(" ");
+$("brandName").textContent = SITE.name;
+$("brandTitle").textContent = SITE.title;
+$("heroTitle").textContent = SITE.title;
+$("heroName").textContent = SITE.name;
+$("heroTag").textContent = SITE.tagline;
+$("footName").textContent = SITE.name;
+$("footTitle").textContent = SITE.title;
+$("year").textContent = new Date().getFullYear();
+if (SITE.photoUrl) $("avatar").innerHTML = `<img src="${esc(SITE.photoUrl)}" alt="${esc(SITE.name)}">`;
+else $("avatar").textContent = initials;
+const links = [["telegram", "✈️ تيليجرام"], ["whatsapp", "🟢 واتساب"], ["instagram", "📷 إنستغرام"]]
+  .filter(([k]) => SITE[k]).map(([k, t]) => `<a href="${esc(SITE[k])}" target="_blank" rel="noopener">${t}</a>`).join("");
+if (links) $("contact").innerHTML = `<h2 class="section-title">تواصل معي</h2>${links}`;
+
+/* ---------------- التنقل بين الصفحات ---------------- */
+const PAGES = ["home", "news", "polls", "chat", "feedback"];
+function route() {
+  const h = location.hash.slice(1);
+  const p = PAGES.includes(h) ? h : "home";
+  document.querySelectorAll(".page").forEach((s) => s.classList.toggle("active", s.id === "page-" + p));
+  document.querySelectorAll("#navLinks a").forEach((a) => a.classList.toggle("active", a.dataset.p === p));
+  $("navLinks").classList.remove("open");
+  window.scrollTo(0, 0);
+  if (p === "chat") { const l = $("msgs"); l.scrollTop = l.scrollHeight; }
+}
+window.addEventListener("hashchange", route);
+route();
+$("menuBtn").onclick = () => $("navLinks").classList.toggle("open");
+
+/* ---------------- تسجيل دخول الرئيس ---------------- */
+const dlg = $("loginDlg");
+$("lgCancel").onclick = () => dlg.close();
+$("authBtn").onclick = async () => {
+  if (state.isAdmin) { await signOut(auth); toast("تم تسجيل الخروج", "ok"); }
+  else dlg.showModal();
+};
+$("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = $("lgSubmit"); btn.disabled = true;
+  try {
+    await signInWithEmailAndPassword(auth, $("lgEmail").value.trim(), $("lgPass").value);
+    dlg.close(); toast("أهلاً بك يا رئيس المرحلة 👑", "ok");
+  } catch { toast("البريد أو كلمة المرور غير صحيحة", "error"); }
+  btn.disabled = false;
+});
+
+/* =====================================================================
+   الأخبار
+   ===================================================================== */
+let news = [], newsFilter = "الكل";
+const CATS = ["الكل", "خبر", "إعلان", "مهم", "موعد"];
+$("chips").innerHTML = CATS.map((c) => `<button class="chip ${c === newsFilter ? "active" : ""}" data-c="${c}">${c}</button>`).join("");
+$("chips").addEventListener("click", (e) => {
+  const b = e.target.closest(".chip"); if (!b) return;
+  newsFilter = b.dataset.c;
+  $("chips").querySelectorAll(".chip").forEach((x) => x.classList.toggle("active", x === b));
+  renderNews();
+});
+
+function renderNews() {
+  const rows = news.filter((x) => newsFilter === "الكل" || x.category === newsFilter)
+    .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+  $("newsList").innerHTML = rows.length ? rows.map((x) => `
+    <article class="card news-item ${x.pinned ? "pinned" : ""} ${x.category === "مهم" ? "cat-important" : ""}">
+      <div class="news-meta">
+        <span class="badge ${x.category === "مهم" ? "red" : "gold"}">${esc(x.category || "خبر")}</span>
+        ${x.pinned ? `<span class="badge">📌 مثبّت</span>` : ""}
+        <span>${fmtDate(x.createdAt)}</span>
+      </div>
+      <h3>${esc(x.title)}</h3>
+      <p class="body">${esc(x.body)}</p>
+      <div class="row admin-only" style="margin-top:10px">
+        <button class="btn sm ghost" data-act="pin" data-id="${x.id}" data-pin="${x.pinned ? 1 : 0}">${x.pinned ? "إلغاء التثبيت" : "تثبيت"}</button>
+        <button class="btn sm danger" data-act="del" data-id="${x.id}">حذف</button>
+      </div>
+    </article>`).join("") : `<div class="card empty">لا توجد منشورات في هذا التصنيف.</div>`;
+}
+
+function renderHome() {
+  $("stNews").textContent = news.length;
+  const top = news.slice(0, 3);
+  $("latest").innerHTML = top.length ? top.map((x) => `
+    <article class="card news-item ${x.pinned ? "pinned" : ""}">
+      <div class="news-meta"><span class="badge gold">${esc(x.category || "خبر")}</span><span>${fmtDate(x.createdAt)}</span></div>
+      <h3>${esc(x.title)}</h3>
+      <p class="body">${esc((x.body || "").slice(0, 220))}${(x.body || "").length > 220 ? "…" : ""}</p>
+    </article>`).join("") + `<a class="btn ghost" href="#news">عرض كل الأخبار ←</a>`
+    : `<div class="card empty">لا توجد أخبار بعد.</div>`;
+}
+
+$("newsList").addEventListener("click", async (e) => {
+  const b = e.target.closest("button[data-act]"); if (!b) return;
+  try {
+    if (b.dataset.act === "del") {
+      if (!confirm("حذف هذا المنشور نهائياً؟")) return;
+      await deleteDoc(doc(db, "news", b.dataset.id)); toast("تم الحذف", "ok");
+    } else await updateDoc(doc(db, "news", b.dataset.id), { pinned: b.dataset.pin !== "1" });
+  } catch (err) { toast(errMsg(err), "error"); }
+});
+$("newsForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  try {
+    await addDoc(collection(db, "news"), {
+      title: $("nTitle").value.trim(), body: $("nBody").value.trim(),
+      category: $("nCat").value, pinned: $("nPin").checked, createdAt: serverTimestamp(),
+    });
+    e.target.reset(); toast("تم النشر ✔", "ok");
+  } catch (err) { toast(errMsg(err), "error"); }
+});
+
+/* =====================================================================
+   التصويت
+   ===================================================================== */
+let polls = [];
+const votes = {}, unsubVotes = {};
+
+function renderPolls() {
+  $("stPolls").textContent = polls.length;
+  if (!polls.length) { $("pollList").innerHTML = `<div class="card empty">لا توجد استطلاعات حالياً.</div>`; return; }
+  const uid = state.user?.uid;
+  $("pollList").innerHTML = polls.map((p) => {
+    const vs = votes[p.id] || [], total = vs.length;
+    const mine = vs.find((v) => v.id === uid)?.option;
+    const canVote = !p.closed && mine === undefined;
+    const opts = p.options.map((o, i) => {
+      const n = vs.filter((v) => v.option === i).length;
+      const pct = total ? Math.round((n / total) * 100) : 0;
+      if (canVote) return `<div class="opt"><button class="in" data-act="vote" data-poll="${p.id}" data-i="${i}"><span>${esc(o)}</span><span class="muted">اضغط للتصويت</span></button></div>`;
+      return `<div class="opt ${mine === i ? "mine" : ""}"><div class="fill" style="width:${pct}%"></div>
+        <div class="in"><span>${esc(o)} ${mine === i ? "✔ صوتك" : ""}</span><span>${pct}% (${n})</span></div></div>`;
+    }).join("");
+    return `<article class="card poll">
+      <div class="row between"><h3>${esc(p.question)}</h3><span class="badge ${p.closed ? "red" : "green"}">${p.closed ? "مغلق" : "مفتوح"}</span></div>
+      ${opts}
+      <div class="row between" style="margin-top:8px"><span class="muted">إجمالي الأصوات: ${total}</span>
+        <span class="row admin-only">
+          <button class="btn sm ghost" data-act="toggle" data-poll="${p.id}" data-closed="${p.closed ? 1 : 0}">${p.closed ? "إعادة فتح" : "إغلاق التصويت"}</button>
+          <button class="btn sm danger" data-act="delpoll" data-poll="${p.id}">حذف</button>
+        </span></div>
+    </article>`;
+  }).join("");
+}
+
+$("pollList").addEventListener("click", async (e) => {
+  const b = e.target.closest("button[data-act]"); if (!b) return;
+  const pid = b.dataset.poll;
+  try {
+    if (b.dataset.act === "vote") {
+      b.disabled = true;
+      await setDoc(doc(db, "polls", pid, "votes", state.user.uid), { option: Number(b.dataset.i), at: serverTimestamp() });
+      toast("تم تسجيل صوتك ✔", "ok");
+    } else if (b.dataset.act === "toggle") {
+      await updateDoc(doc(db, "polls", pid), { closed: b.dataset.closed !== "1" });
+    } else if (b.dataset.act === "delpoll") {
+      if (!confirm("حذف الاستطلاع وكل أصواته؟")) return;
+      const vs = await getDocs(collection(db, "polls", pid, "votes"));
+      await Promise.all(vs.docs.map((d) => deleteDoc(d.ref)));
+      await deleteDoc(doc(db, "polls", pid)); toast("تم الحذف", "ok");
+    }
+  } catch (err) { toast(errMsg(err), "error"); renderPolls(); }
+});
+$("pollForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const options = $("pOpts").value.split("\n").map((s) => s.trim()).filter(Boolean);
+  if (options.length < 2 || options.length > 6) return toast("أدخل من 2 إلى 6 خيارات", "error");
+  try {
+    await addDoc(collection(db, "polls"), { question: $("pQ").value.trim(), options, closed: false, createdAt: serverTimestamp() });
+    e.target.reset(); toast("تم نشر الاستطلاع ✔", "ok");
+  } catch (err) { toast(errMsg(err), "error"); }
+});
+
+/* =====================================================================
+   الدردشة
+   ===================================================================== */
+let messages = [], locked = false, lastChat = 0;
+const muted = {};
+$("cName").value = localStorage.getItem("chatName") || "";
+
+function renderChat() {
+  const uid = state.user?.uid, list = $("msgs");
+  const nearBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 120;
+  list.innerHTML = messages.length ? messages.map((m) => {
+    const isMuted = !!muted[m.uid];
+    return `<div class="msg ${m.uid === uid ? "me" : ""} ${m.isPresident ? "pres" : ""}">
+      <div class="who">${m.isPresident ? "👑 " : ""}${esc(m.name)} ${isMuted ? `<span class="badge red">مكتوم</span>` : ""}</div>
+      <div class="txt">${esc(m.text)}</div>
+      <div class="time">${fmtDate(m.createdAt)}</div>
+      ${!m.isPresident ? `<div class="acts admin-only flex">
+        <button class="del" data-act="del" data-id="${m.id}">حذف</button>
+        <button data-act="${isMuted ? "unmute" : "mute"}" data-uid="${m.uid}" data-name="${esc(m.name)}">${isMuted ? "إلغاء الكتم" : "كتم"}</button>
+      </div>` : ""}
+    </div>`;
+  }).join("") : `<div class="empty">لا توجد رسائل بعد. كن أول من يكتب!</div>`;
+  if (nearBottom) list.scrollTop = list.scrollHeight;
+
+  const iAmMuted = !state.isAdmin && uid && muted[uid];
+  const blocked = !state.isAdmin && (locked || iAmMuted);
+  $("lockBadge").textContent = locked ? "مقفلة 🔒" : "مفتوحة";
+  $("lockBadge").className = "badge " + (locked ? "red" : "green");
+  $("lockBtn").textContent = locked ? "🔓 فتح الدردشة" : "🔒 قفل الدردشة";
+  $("notice").innerHTML = iAmMuted ? `<div class="notice mute">🔇 تم كتمك من قبل الرئيس ولا يمكنك الإرسال.</div>`
+    : locked && !state.isAdmin ? `<div class="notice lock">🔒 الدردشة مقفلة حالياً من قبل الرئيس.</div>` : "";
+  $("cText").disabled = $("cSend").disabled = $("cName").disabled = !!blocked;
+
+  const ids = Object.keys(muted);
+  $("mutedList").innerHTML = ids.length
+    ? `<b>المكتومون:</b> ` + ids.map((id) => `<span class="badge red" style="margin:2px">${esc(muted[id].name || "مستخدم")}
+        <a href="#chat" data-act="unmute" data-uid="${id}" style="margin-right:6px">✕</a></span>`).join("")
+    : `<span class="muted">لا يوجد مكتومون.</span>`;
+}
+
+$("chatForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (Date.now() - lastChat < 2000) return toast("لا تُرسل بسرعة كبيرة", "error");
+  const text = $("cText").value.trim();
+  const name = state.isAdmin ? `${SITE.name} — ${SITE.title}` : $("cName").value.trim();
+  if (!name) return toast("اكتب اسمك أولاً", "error");
+  if (!text) return;
+  if (!state.isAdmin) localStorage.setItem("chatName", name);
+  try {
+    await addDoc(collection(db, "messages"), { text, name, uid: state.user.uid, isPresident: state.isAdmin, createdAt: serverTimestamp() });
+    lastChat = Date.now(); $("cText").value = "";
+  } catch (err) {
+    toast(err?.code?.includes("permission") ? "لا يمكنك الإرسال (الدردشة مقفلة أو تم كتمك)" : errMsg(err), "error");
+  }
+});
+
+["msgs", "mutedList"].forEach((id) => $(id).addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  e.preventDefault();
+  const { act, id: mid, uid, name } = b.dataset;
+  try {
+    if (act === "del") await deleteDoc(doc(db, "messages", mid));
+    else if (act === "mute") { await setDoc(doc(db, "muted", uid), { name, at: serverTimestamp() }); toast("تم كتم المستخدم", "ok"); }
+    else if (act === "unmute") { await deleteDoc(doc(db, "muted", uid)); toast("تم إلغاء الكتم", "ok"); }
+  } catch (err) { toast(errMsg(err), "error"); }
+}));
+
+$("lockBtn").onclick = async () => {
+  try { await setDoc(doc(db, "settings", "chat"), { locked: !locked }); toast(locked ? "تم فتح الدردشة" : "تم قفل الدردشة", "ok"); }
+  catch (err) { toast(errMsg(err), "error"); }
+};
+$("clearBtn").onclick = async () => {
+  if (!confirm("سيتم حذف جميع الرسائل نهائياً. متأكد؟")) return;
+  try {
+    const snap = await getDocs(collection(db, "messages"));
+    for (let i = 0; i < snap.docs.length; i += 400) {
+      const b = writeBatch(db);
+      snap.docs.slice(i, i + 400).forEach((d) => b.delete(d.ref));
+      await b.commit();
+    }
+    toast("تم مسح الرسائل", "ok");
+  } catch (err) { toast(errMsg(err), "error"); }
+};
+
+/* =====================================================================
+   الملاحظات
+   ===================================================================== */
+let lastFb = 0, unsubInbox = null;
+$("fbForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (Date.now() - lastFb < 15000) return toast("انتظر قليلاً قبل إرسال رسالة أخرى", "error");
+  const btn = $("fSend"); btn.disabled = true;
+  try {
+    await addDoc(collection(db, "feedback"), {
+      name: $("fName").value.trim() || "مجهول", type: $("fType").value, message: $("fMsg").value.trim(),
+      uid: state.user.uid, read: false, createdAt: serverTimestamp(),
+    });
+    lastFb = Date.now(); e.target.reset(); toast("وصلت رسالتك، شكراً لك 🌟", "ok");
+  } catch (err) { toast(errMsg(err), "error"); }
+  btn.disabled = false;
+});
+
+const replyDrafts = {};   // يحفظ ما كتبه الرئيس إن تحدّثت القائمة أثناء الكتابة
+function startInbox() {
+  if (unsubInbox) return;
+  unsubInbox = onSnapshot(query(collection(db, "feedback"), orderBy("createdAt", "desc")), (s) => {
+    document.querySelectorAll("#inbox textarea[data-reply]").forEach((t) => (replyDrafts[t.dataset.reply] = t.value));
+    $("inbox").innerHTML = s.empty ? `<div class="card empty">لا توجد ملاحظات بعد.</div>` : s.docs.map((d) => {
+      const x = d.data();
+      const draft = replyDrafts[d.id] ?? x.reply ?? "";
+      return `<article class="card fb-item ${x.read ? "" : "unread"}">
+        <div class="row between"><div class="row"><b>${esc(x.name)}</b>
+          <span class="badge ${x.type === "شكوى" ? "red" : "gold"}">${esc(x.type)}</span>
+          ${x.read ? "" : `<span class="badge green">جديدة</span>`}
+          ${x.reply ? `<span class="badge green">تم الرد ✔</span>` : ""}</div>
+          <span class="muted">${fmtDate(x.createdAt)}</span></div>
+        <p style="white-space:pre-wrap;margin:8px 0">${esc(x.message)}</p>
+        ${x.reply ? `<div class="reply-box"><b>👑 ردّك:</b> <span class="time">${fmtDate(x.repliedAt)}</span>
+          <p style="white-space:pre-wrap">${esc(x.reply)}</p></div>` : ""}
+        <div class="reply-form">
+          <textarea data-reply="${d.id}" maxlength="1000" placeholder="${x.reply ? "عدّل ردك هنا…" : "اكتب ردك هنا…"}">${esc(draft)}</textarea>
+          <div class="row">
+            <button class="btn sm gold" data-act="reply" data-id="${d.id}">${x.reply ? "تحديث الرد" : "إرسال الرد"}</button>
+            ${x.reply ? `<button class="btn sm ghost" data-act="delreply" data-id="${d.id}">حذف الرد</button>` : ""}
+            ${x.read ? "" : `<button class="btn sm ghost" data-act="read" data-id="${d.id}">تعليم كمقروءة</button>`}
+            <button class="btn sm danger" data-act="delfb" data-id="${d.id}">حذف الرسالة</button>
+          </div>
+        </div></article>`;
+    }).join("");
+  }, (e) => { console.error(e); $("inbox").innerHTML = `<div class="card empty">تعذر تحميل الملاحظات.</div>`; });
+}
+$("inbox").addEventListener("click", async (e) => {
+  const b = e.target.closest("button[data-act]"); if (!b) return;
+  const id = b.dataset.id;
+  try {
+    if (b.dataset.act === "read") await updateDoc(doc(db, "feedback", id), { read: true });
+    else if (b.dataset.act === "reply") {
+      const t = $("inbox").querySelector(`textarea[data-reply="${id}"]`);
+      const text = t.value.trim();
+      if (!text) return toast("اكتب الرد أولاً", "error");
+      await updateDoc(doc(db, "feedback", id), { reply: text, repliedAt: serverTimestamp(), read: true });
+      delete replyDrafts[id];
+      toast("تم إرسال الرد ✔", "ok");
+    } else if (b.dataset.act === "delreply") {
+      if (!confirm("حذف الرد؟")) return;
+      await updateDoc(doc(db, "feedback", id), { reply: deleteField(), repliedAt: deleteField() });
+      delete replyDrafts[id];
+    } else if (confirm("حذف هذه الرسالة؟")) await deleteDoc(doc(db, "feedback", id));
+  } catch (err) { toast(errMsg(err), "error"); }
+});
+
+/* رسائل الطالب وردود الرئيس عليها (يراها صاحبها فقط) */
+let unsubMine = null;
+function startMine() {
+  if (unsubMine) { unsubMine(); unsubMine = null; }
+  if (state.isAdmin || !state.user) return;
+  unsubMine = onSnapshot(query(collection(db, "feedback"), where("uid", "==", state.user.uid)), (s) => {
+    const rows = s.docs.map((d) => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (b.createdAt?.toMillis?.() ?? Date.now()) - (a.createdAt?.toMillis?.() ?? Date.now()));
+    $("myMsgs").innerHTML = rows.length ? rows.map((x) => `
+      <article class="card my-msg">
+        <div class="row between"><div class="row"><span class="badge gold">${esc(x.type)}</span>
+          ${x.reply ? `<span class="badge green">ردّ الرئيس ✔</span>` : `<span class="badge">بانتظار الرد</span>`}</div>
+          <span class="muted">${fmtDate(x.createdAt)}</span></div>
+        <p style="white-space:pre-wrap;margin:8px 0">${esc(x.message)}</p>
+        ${x.reply ? `<div class="reply-box"><b>👑 رد الرئيس:</b> <span class="time">${fmtDate(x.repliedAt)}</span>
+          <p style="white-space:pre-wrap">${esc(x.reply)}</p></div>` : ""}
+      </article>`).join("") : `<div class="card empty">لم ترسل أي رسالة من هذا الجهاز بعد.</div>`;
+  }, (e) => console.error(e));
+}
+
+/* =====================================================================
+   المصادقة وتشغيل المستمعات
+   ===================================================================== */
+let started = false;
+function startListeners() {
+  if (started) return; started = true;
+
+  onSnapshot(query(collection(db, "news"), orderBy("createdAt", "desc")),
+    (s) => { news = s.docs.map((d) => ({ id: d.id, ...d.data() })); renderNews(); renderHome(); },
+    (e) => { console.error(e); $("newsList").innerHTML = `<div class="card empty">تعذر تحميل الأخبار.</div>`; $("latest").innerHTML = ""; });
+
+  onSnapshot(query(collection(db, "polls"), orderBy("createdAt", "desc")), (s) => {
+    polls = s.docs.map((d) => ({ id: d.id, ...d.data() }));
+    const ids = new Set(polls.map((p) => p.id));
+    polls.forEach((p) => {
+      if (unsubVotes[p.id]) return;
+      unsubVotes[p.id] = onSnapshot(collection(db, "polls", p.id, "votes"), (vs) => {
+        votes[p.id] = vs.docs.map((d) => ({ id: d.id, option: d.data().option }));
+        renderPolls();
+      });
+    });
+    Object.keys(unsubVotes).forEach((id) => { if (!ids.has(id)) { unsubVotes[id](); delete unsubVotes[id]; delete votes[id]; } });
+    renderPolls();
+  }, (e) => { console.error(e); $("pollList").innerHTML = `<div class="card empty">تعذر تحميل الاستطلاعات.</div>`; });
+
+  onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(200)),
+    (s) => { messages = s.docs.map((d) => ({ id: d.id, ...d.data() })).reverse(); renderChat(); },
+    (e) => { console.error(e); $("msgs").innerHTML = `<div class="empty">تعذر تحميل الرسائل.</div>`; });
+  onSnapshot(doc(db, "settings", "chat"), (d) => { locked = !!d.data()?.locked; renderChat(); });
+  onSnapshot(collection(db, "muted"), (s) => {
+    Object.keys(muted).forEach((k) => delete muted[k]);
+    s.docs.forEach((d) => (muted[d.id] = d.data()));
+    renderChat();
+  });
+  getCountFromServer(collection(db, "messages")).then((c) => ($("stMsgs").textContent = c.data().count)).catch(() => ($("stMsgs").textContent = "0"));
+}
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    try { await signInAnonymously(auth); }
+    catch (e) { console.error(e); toast("تعذر الاتصال بـ Firebase. تأكد من الإعدادات وتفعيل الدخول المجهول.", "error"); }
+    return;
+  }
+  state.user = user;
+  state.isAdmin = !!user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+  document.body.classList.toggle("is-admin", state.isAdmin);
+  $("authBtn").textContent = state.isAdmin ? "👑 خروج الرئيس" : "🔐 دخول الرئيس";
+  startListeners();
+  renderPolls(); renderChat();
+  if (state.isAdmin) startInbox();
+  else if (unsubInbox) { unsubInbox(); unsubInbox = null; }
+  startMine();
+});
+</script>
+</body>
+</html>
