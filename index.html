@@ -211,6 +211,8 @@ dialog h3{color:var(--navy);margin-bottom:4px}
     <div class="hero">
       <div class="hero-side">
         <div class="avatar" id="avatar"></div>
+        <button class="btn sm gold admin-only" id="photoBtn" type="button">📷 تغيير الصورة</button>
+        <input type="file" id="photoFile" accept="image/*" hidden>
         <div class="social" id="heroSocial"></div>
       </div>
       <div class="hero-text">
@@ -370,11 +372,11 @@ const SITE = {
   name: "محمد سالم",
   title: "رئيس المرحلة الرابعة",
   tagline: "صوتكم أمانة... وخدمتكم مسؤولية. موقعنا الرسمي للأخبار والتصويت والتواصل المباشر.",
-  photoUrl: "salims.webp",     // صورة الرئيس (اختياري) مثل: "president.jpg"
+  photoUrl: "",     // صورة الرئيس (اختياري) مثل: "president.jpg"
   logoUrl: "",      // شعار الزاوية العلوية (اختياري). إن تُرك فارغاً تُستخدم صورة الرئيس
   telegram: "https://t.me/x5tzy",     // مثال: "https://t.me/x5tzy"
   whatsapp: "https://wa.me/9647761746865",     // مثال: "https://wa.me/9647761746865"
-  instagram: "https://instagram.com/x5tzy",    // مثال: "https://instagram.com/username"
+  instagram: "https://instagram.com/x5tzy",    // مثال: "https://instagram.com/x5tzy"
 };
 /* ===================================================================== */
 
@@ -417,15 +419,6 @@ const initials = SITE.name.split(" ").map((w) => w[0]).join("");
 
 /* ---------------- الترويسة والبيانات الثابتة ---------------- */
 $("brandLogo").textContent = initials.split("").join(" ");
-{
-  const src = SITE.logoUrl || SITE.photoUrl;     // الشعار: logoUrl إن وُجد، وإلا صورة الرئيس
-  if (src) {
-    const lg = new Image();
-    lg.alt = "";
-    lg.onload = () => { $("brandLogo").textContent = ""; $("brandLogo").appendChild(lg); };
-    lg.src = src;
-  }
-}
 $("brandName").textContent = SITE.name;
 $("brandTitle").textContent = SITE.title;
 $("heroTitle").textContent = SITE.title;
@@ -435,13 +428,39 @@ $("footName").textContent = SITE.name;
 $("footTitle").textContent = SITE.title;
 $("year").textContent = new Date().getFullYear();
 $("avatar").textContent = initials;
-if (SITE.photoUrl) {
-  const img = new Image();
-  img.alt = "";
-  img.onload = () => { $("avatar").textContent = ""; $("avatar").appendChild(img); };
-  img.onerror = () => console.warn("تعذر تحميل صورة الرئيس، تحقق من photoUrl:", SITE.photoUrl);
-  img.src = SITE.photoUrl;
+
+/* تطبيق صورة الرئيس على البطاقة والشعار (الأولوية للصورة المرفوعة من الموقع ثم photoUrl) */
+function applyPhoto(src) {
+  if (!src) return;
+  const a = new Image(); a.alt = "";
+  a.onload = () => { $("avatar").textContent = ""; $("avatar").appendChild(a); };
+  a.src = src;
+  const l = new Image(); l.alt = "";
+  l.onload = () => { $("brandLogo").textContent = ""; $("brandLogo").appendChild(l); };
+  l.src = SITE.logoUrl || src;
 }
+applyPhoto(SITE.photoUrl);
+
+/* رفع الصورة من الموقع (للرئيس فقط): تُقصّ مربعة وتُصغّر ثم تُحفظ في Firestore */
+$("photoBtn").onclick = () => $("photoFile").click();
+$("photoFile").onchange = async (e) => {
+  const f = e.target.files[0];
+  e.target.value = "";
+  if (!f) return;
+  let data;
+  try {
+    const bmp = await createImageBitmap(f);
+    const S = 400, c = document.createElement("canvas");
+    c.width = c.height = S;
+    const m = Math.min(bmp.width, bmp.height);
+    c.getContext("2d").drawImage(bmp, (bmp.width - m) / 2, (bmp.height - m) / 2, m, m, 0, 0, S, S);
+    data = c.toDataURL("image/jpeg", 0.85);
+  } catch { return toast("تعذر قراءة الصورة، جرّب صورة JPG أو PNG", "error"); }
+  try {
+    await setDoc(doc(db, "settings", "profile"), { photo: data, at: serverTimestamp() });
+    toast("تم تحديث الصورة ✔", "ok");
+  } catch (err) { toast(errMsg(err), "error"); }
+};
 const ICONS = {
   instagram: `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r=".8" fill="currentColor"/></svg>`,
   whatsapp: `<svg viewBox="0 0 24 24"><path d="M3 21l1.6-4.6A8.5 8.5 0 1 1 8 19.6L3 21z"/><path d="M9 8.5c.5 2.5 3 5 6 6l1.3-1.3-2-1-1 .8c-1-.4-2-1.4-2.4-2.4l.8-1-1-2z"/></svg>`,
@@ -842,6 +861,7 @@ function startListeners() {
     s.docs.forEach((d) => (muted[d.id] = d.data()));
     renderChat();
   });
+  onSnapshot(doc(db, "settings", "profile"), (d) => { const p = d.data()?.photo; if (p) applyPhoto(p); });
   getCountFromServer(collection(db, "messages")).then((c) => ($("stMsgs").textContent = c.data().count)).catch(() => ($("stMsgs").textContent = "0"));
 }
 
