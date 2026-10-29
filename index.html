@@ -322,6 +322,10 @@ dialog h3{color:var(--navy);margin-bottom:4px}
     <div class="user-only" style="max-width:700px;margin-top:26px">
       <h2 class="section-title" style="margin-top:0">📬 رسائلي وردود الرئيس</h2>
       <div id="myMsgs"><div class="card empty">لم ترسل أي رسالة من هذا الجهاز بعد.</div></div>
+      <form id="trackForm" class="row" style="margin-top:12px">
+        <input type="text" id="trackCode" dir="ltr" placeholder="لديك رمز متابعة من جهاز آخر؟ الصقه هنا" style="flex:1;min-width:220px">
+        <button class="btn ghost sm" type="submit">إضافة</button>
+      </form>
     </div>
 
     <div class="admin-only">
@@ -359,10 +363,10 @@ const SITE = {
   name: "محمد سالم",
   title: "رئيس المرحلة الرابعة",
   tagline: "صوتكم أمانة... وخدمتكم مسؤولية. موقعنا الرسمي للأخبار والتصويت والتواصل المباشر.",
-  photoUrl: "",     // رابط صورة (اختياري) مثل: "https://.../photo.jpg"
-  telegram: "",     // مثال: "https://t.me/username"
-  whatsapp: "",     // مثال: "https://wa.me/9647XXXXXXXXX"
-  instagram: "",    // مثال: "https://instagram.com/username"
+  photoUrl: "",     // رابط صورة (اختياري) مثل: "https://imgur.com/a/WU7Pn6E"
+  telegram: "",     // مثال: "https://t.me/x5tzy"
+  whatsapp: "",     // مثال: "https://wa.me/9647761746865"
+  instagram: "",    // مثال: "https://instagram.com/x5tzy"
 };
 /* ===================================================================== */
 
@@ -669,10 +673,12 @@ $("fbForm").addEventListener("submit", async (e) => {
   if (Date.now() - lastFb < 15000) return toast("انتظر قليلاً قبل إرسال رسالة أخرى", "error");
   const btn = $("fSend"); btn.disabled = true;
   try {
-    await addDoc(collection(db, "feedback"), {
+    const ref = await addDoc(collection(db, "feedback"), {
       name: $("fName").value.trim() || "مجهول", type: $("fType").value, message: $("fMsg").value.trim(),
       uid: state.user.uid, read: false, createdAt: serverTimestamp(),
     });
+    saveMyIds([...getMyIds(), ref.id]);
+    startMine();
     lastFb = Date.now(); e.target.reset(); toast("وصلت رسالتك، شكراً لك 🌟", "ok");
   } catch (err) { toast(errMsg(err), "error"); }
   btn.disabled = false;
@@ -727,25 +733,52 @@ $("inbox").addEventListener("click", async (e) => {
   } catch (err) { toast(errMsg(err), "error"); }
 });
 
-/* رسائل الطالب وردود الرئيس عليها (يراها صاحبها فقط) */
-let unsubMine = null;
-function startMine() {
-  if (unsubMine) { unsubMine(); unsubMine = null; }
-  if (state.isAdmin || !state.user) return;
-  unsubMine = onSnapshot(query(collection(db, "feedback"), where("uid", "==", state.user.uid)), (s) => {
-    const rows = s.docs.map((d) => ({ id: d.id, ...d.data() }))
-      .sort((a, b) => (b.createdAt?.toMillis?.() ?? Date.now()) - (a.createdAt?.toMillis?.() ?? Date.now()));
-    $("myMsgs").innerHTML = rows.length ? rows.map((x) => `
-      <article class="card my-msg">
-        <div class="row between"><div class="row"><span class="badge gold">${esc(x.type)}</span>
-          ${x.reply ? `<span class="badge green">ردّ الرئيس ✔</span>` : `<span class="badge">بانتظار الرد</span>`}</div>
-          <span class="muted">${fmtDate(x.createdAt)}</span></div>
-        <p style="white-space:pre-wrap;margin:8px 0">${esc(x.message)}</p>
-        ${x.reply ? `<div class="reply-box"><b>👑 رد الرئيس:</b> <span class="time">${fmtDate(x.repliedAt)}</span>
-          <p style="white-space:pre-wrap">${esc(x.reply)}</p></div>` : ""}
-      </article>`).join("") : `<div class="card empty">لم ترسل أي رسالة من هذا الجهاز بعد.</div>`;
-  }, (e) => console.error(e));
+/* رسائل الطالب وردود الرئيس عليها
+   تُحفظ أرقام الرسائل في هذا المتصفح (وليس بالحساب المجهول الذي قد يتغيّر)،
+   ويمكن متابعتها من أي جهاز بـ«رمز المتابعة». */
+const MY_KEY = "myFeedbackIds";
+const getMyIds = () => { try { return JSON.parse(localStorage.getItem(MY_KEY)) || []; } catch { return []; } };
+const saveMyIds = (a) => { try { localStorage.setItem(MY_KEY, JSON.stringify([...new Set(a)])); } catch {} };
+let mineUnsubs = [];
+const mineData = {};
+
+function renderMine() {
+  const rows = Object.entries(mineData).map(([id, x]) => ({ id, ...x }))
+    .sort((a, b) => (b.createdAt?.toMillis?.() ?? Date.now()) - (a.createdAt?.toMillis?.() ?? Date.now()));
+  $("myMsgs").innerHTML = rows.length ? rows.map((x) => `
+    <article class="card my-msg">
+      <div class="row between"><div class="row"><span class="badge gold">${esc(x.type)}</span>
+        ${x.reply ? `<span class="badge green">ردّ الرئيس ✔</span>` : `<span class="badge">بانتظار الرد</span>`}</div>
+        <span class="muted">${fmtDate(x.createdAt)}</span></div>
+      <p style="white-space:pre-wrap;margin:8px 0">${esc(x.message)}</p>
+      ${x.reply ? `<div class="reply-box"><b>👑 رد الرئيس:</b> <span class="time">${fmtDate(x.repliedAt)}</span>
+        <p style="white-space:pre-wrap">${esc(x.reply)}</p></div>` : ""}
+      <div class="muted" style="font-size:.78rem;margin-top:8px">رمز المتابعة: <code dir="ltr" style="user-select:all">${x.id}</code></div>
+    </article>`).join("") : `<div class="card empty">لم ترسل أي رسالة من هذا الجهاز بعد.</div>`;
 }
+
+function startMine() {
+  mineUnsubs.forEach((u) => u()); mineUnsubs = [];
+  Object.keys(mineData).forEach((k) => delete mineData[k]);
+  if (state.isAdmin || !state.user) return;
+  getMyIds().forEach((id) => {
+    mineUnsubs.push(onSnapshot(doc(db, "feedback", id), (d) => {
+      if (d.exists()) mineData[id] = d.data(); else delete mineData[id];   // حُذفت من قبل الرئيس
+      renderMine();
+    }, (e) => { console.error(e); delete mineData[id]; renderMine(); }));
+  });
+  renderMine();
+}
+
+$("trackForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const code = $("trackCode").value.trim();
+  if (!/^[A-Za-z0-9]{15,30}$/.test(code)) return toast("الرمز غير صحيح", "error");
+  saveMyIds([...getMyIds(), code]);
+  $("trackCode").value = "";
+  startMine();
+  toast("تمت إضافة الرسالة، إن كان الرمز صحيحاً ستظهر أدناه", "ok");
+});
 
 /* =====================================================================
    المصادقة وتشغيل المستمعات
