@@ -96,7 +96,11 @@ textarea{min-height:120px;resize:vertical}
 .feature:hover{transform:translateY(-4px)}
 .feature .ico{font-size:2.2rem;margin-bottom:6px}
 .feature h3{color:var(--navy)}
-.contact a{display:inline-flex;gap:6px;background:#eef3fb;padding:8px 16px;border-radius:99px;font-weight:700;margin:4px}
+.hero-side{position:relative;display:flex;flex-direction:column;align-items:center;gap:16px;flex-shrink:0}
+.social{display:flex;gap:10px;justify-content:center}
+.social a{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.12);border:1.5px solid rgba(230,198,90,.55);color:var(--gold-2);transition:.2s}
+.social a:hover{background:var(--gold);color:var(--navy);transform:translateY(-3px)}
+.social svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 
 /* الأخبار */
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
@@ -204,7 +208,10 @@ dialog h3{color:var(--navy);margin-bottom:4px}
   <!-- ===================== الرئيسية ===================== -->
   <section class="page" id="page-home">
     <div class="hero">
-      <div class="avatar" id="avatar"></div>
+      <div class="hero-side">
+        <div class="avatar" id="avatar"></div>
+        <div class="social" id="heroSocial"></div>
+      </div>
       <div class="hero-text">
         <div class="tag" id="heroTitle"></div>
         <h1 id="heroName"></h1>
@@ -232,7 +239,6 @@ dialog h3{color:var(--navy);margin-bottom:4px}
 
     <h2 class="section-title">آخر الأخبار</h2>
     <div id="latest"><div class="empty">جارِ التحميل…</div></div>
-    <div class="contact" id="contact" style="margin-top:26px"></div>
   </section>
 
   <!-- ===================== الأخبار ===================== -->
@@ -363,10 +369,10 @@ const SITE = {
   name: "محمد سالم",
   title: "رئيس المرحلة الرابعة",
   tagline: "صوتكم أمانة... وخدمتكم مسؤولية. موقعنا الرسمي للأخبار والتصويت والتواصل المباشر.",
-  photoUrl: "",     // رابط صورة (اختياري) مثل: "https://imgur.com/a/WU7Pn6E"
-  telegram: "",     // مثال: "https://t.me/x5tzy"
-  whatsapp: "",     // مثال: "https://wa.me/9647761746865"
-  instagram: "",    // مثال: "https://instagram.com/x5tzy"
+  photoUrl: "https://imgur.com/a/WU7Pn6E",     // رابط صورة (اختياري) مثل: "https://.../photo.jpg"
+  telegram: "https://t.me/x5tzy",     // مثال: "https://t.me/x5tzy"
+  whatsapp: "https://wa.me/9647761746865",     // مثال: "https://wa.me/9647761746865"
+  instagram: "https://instagram.com/x5tzy",    // مثال: "https://instagram.com/username"
 };
 /* ===================================================================== */
 
@@ -419,9 +425,14 @@ $("footTitle").textContent = SITE.title;
 $("year").textContent = new Date().getFullYear();
 if (SITE.photoUrl) $("avatar").innerHTML = `<img src="${esc(SITE.photoUrl)}" alt="${esc(SITE.name)}">`;
 else $("avatar").textContent = initials;
-const links = [["telegram", "✈️ تيليجرام"], ["whatsapp", "🟢 واتساب"], ["instagram", "📷 إنستغرام"]]
-  .filter(([k]) => SITE[k]).map(([k, t]) => `<a href="${esc(SITE[k])}" target="_blank" rel="noopener">${t}</a>`).join("");
-if (links) $("contact").innerHTML = `<h2 class="section-title">تواصل معي</h2>${links}`;
+const ICONS = {
+  instagram: `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r=".8" fill="currentColor"/></svg>`,
+  whatsapp: `<svg viewBox="0 0 24 24"><path d="M3 21l1.6-4.6A8.5 8.5 0 1 1 8 19.6L3 21z"/><path d="M9 8.5c.5 2.5 3 5 6 6l1.3-1.3-2-1-1 .8c-1-.4-2-1.4-2.4-2.4l.8-1-1-2z"/></svg>`,
+  telegram: `<svg viewBox="0 0 24 24"><path d="M21.5 3.5L2.5 11l6 2.2 2.3 6.8 3.2-4.3 5 3.7z"/><path d="M8.5 13.2l8.5-6.2"/></svg>`,
+};
+const LABELS = { instagram: "إنستغرام", whatsapp: "واتساب", telegram: "تيليجرام" };
+$("heroSocial").innerHTML = ["instagram", "whatsapp", "telegram"].filter((k) => SITE[k])
+  .map((k) => `<a href="${esc(SITE[k])}" target="_blank" rel="noopener" title="${LABELS[k]}" aria-label="${LABELS[k]}">${ICONS[k]}</a>`).join("");
 
 /* ---------------- التنقل بين الصفحات ---------------- */
 const PAGES = ["home", "news", "polls", "chat", "feedback"];
